@@ -381,4 +381,5 @@ export class GeneralDispensingFormComponent implements OnInit {
 
       this.updateConsultationOrder.emit();
     }
+  }
 }
