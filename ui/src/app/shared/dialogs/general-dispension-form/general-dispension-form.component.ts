@@ -203,21 +203,6 @@ export class GeneralDispensingFormComponent implements OnInit {
 
   saveOrder(e: any, conceptFields: any) {
       const prescriptions = getGenericDrugPrescriptionsFromVisit(this.currentVisit, this.orderType);
-      let drug_names: string[] = [];;
-  
-      // Accessing the values
-      prescriptions.forEach(item => {
-        if (this.specificDrugConceptUuid in item.obs){
-          drug_names.push(item.obs[this.specificDrugConceptUuid].comment);
-          console.log(item.obs[this.specificDrugConceptUuid]);
-          
-        }
-      });
-      // prescriptions.forEach(item => {
-      //   if(item.obs[this.specificDrugConceptUuid].comment === this.formValues?.drug?.value.drug.display) {
-      //     drug_obs = item.obs
-      //   }
-      // })
     let drug_obs;
 
     for (const item of prescriptions) {
@@ -239,21 +224,28 @@ export class GeneralDispensingFormComponent implements OnInit {
           },
         ];
       });
-    } else {
-
-        if(drug_obs &&
+    } 
+    if(drug_obs &&
       drug_obs[this.specificDrugConceptUuid].comment === this.formValues?.drug?.value.drug.display
-    ) {
-      const duration = parseInt(drug_obs[this.generalPrescriptionDurationConcept].display.split(': ')[1], 10)
-      const unit = drug_obs[this.durationUnitsSettings].display.split(': ')[1].toLowerCase()
-      const now = new Date();
-      const obs_datetime = drug_obs[this.specificDrugConceptUuid].obsDatetime.replace(/(\+|-)(\d{2})(\d{2})$/, '$1$2:$3')
-      // console.log(drug_obs);
-      
-      // console.log(parseInt(drug_obs[this.generalPrescriptionDurationConcept].display.split(': ')[1], 10));
-      // console.log(drug_obs[this.durationUnitsSettings].display.split(': ')[1].toLowerCase());
-      // console.log(parseISO(obs_datetime))
-      // console.log(now);
+  ) {
+    const duration = parseInt(drug_obs[this.generalPrescriptionDurationConcept].display.split(': ')[1], 10)
+    const unit = drug_obs[this.durationUnitsSettings].display.split(': ')[1].toLowerCase()
+    const now = new Date();
+    const obs_datetime = drug_obs[this.specificDrugConceptUuid].obsDatetime.replace(/(\+|-)(\d{2})(\d{2})$/, '$1$2:$3')
+    // Define the mapping of units to date-fns duration objects
+      const unitMap: { [key: string]: any } = {
+        minutes: { minutes: duration },
+        hours: { hours: duration },
+        days: { days: duration },
+        weeks: { weeks: duration }, 
+        months: { months: duration },
+        years: { years: duration },
+      };
+      //calculate end date
+      const result_time = add(parseISO(obs_datetime), unitMap[unit]);
+    }
+    else {
+
       this.savingOrder = true;
       let encounterObject = {
         patient: this.currentPatient?.id,
